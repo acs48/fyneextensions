@@ -6,23 +6,58 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
+// ExpandingLastUnpaddedVBox is a Fyne compatible layout. It defines a vertical box
+// without any padding, which keeps the height of all objects except the last at
+// their MinSize(), and expands the last element height to fill the container height.
+// Width of all objects is the container width.
 type ExpandingLastUnpaddedVBox struct {
 }
+
+// ExpandingFirstUnpaddedVBox is a Fyne compatible layout. It defines a vertical box
+// without any padding, which keeps the height of all objects except the first at
+// their MinSize(), and expands the first element height to fill the container height.
+// Width of all objects is the container width.
 type ExpandingFirstUnpaddedVBox struct {
 }
+
+// ExpandingLastPaddedVBox is a Fyne compatible layout. It defines a vertical box
+// with padding, which keeps the height of all objects except the last at
+// their MinSize(), and expands the last element height to fill the container height.
+// Width of all objects is the container width.
 type ExpandingLastPaddedVBox struct {
 }
+
+// ExpandingFirstPaddedVBox is a Fyne compatible layout. It defines a vertical box
+// with padding, which keeps the height of all objects except the first at
+// their MinSize(), and expands the first element height to fill the container height.
+// Width of all objects is the container width.
 type ExpandingFirstPaddedVBox struct {
 }
 
+// ExpandingFirstUnpaddedHBox is a Fyne compatible layout. It defines a horizontal box
+// without padding, which keeps the width of all objects except the first at
+// their MinSize(), and expands the first element width to fill the container height.
+// Height of all objects is the container height.
 type ExpandingFirstUnpaddedHBox struct {
 }
+
+// ExpandingLastUnpaddedHBox is a Fyne compatible layout. It defines a horizontal box
+// without padding, which keeps the width of all objects except the last at
+// their MinSize(), and expands the last element width to fill the container height.
+// Height of all objects is the container height.
 type ExpandingLastUnpaddedHBox struct {
 }
 
+// ExpandingFirstPaddedHBox is a Fyne compatible layout. It defines a horizontal box
+// with padding, which keeps the width of all objects except the last at
+// their MinSize(), and expands the last element width to fill the container height.
+// Height of all objects is the container height.
 type ExpandingFirstPaddedHBox struct {
 }
 
+// ExpandingAllProportionallyPaddedHBox is a Fyne compatible layout. It defines a horizontal box
+// with padding, height of all elements is the container height, width of each element is calculated
+// to keep the same ratio between width and height as from their MinSize()
 type ExpandingAllProportionallyPaddedHBox struct{}
 
 func (d *ExpandingLastUnpaddedVBox) MinSize(objects []fyne.CanvasObject) fyne.Size {

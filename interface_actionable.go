@@ -9,7 +9,7 @@ import (
 The Actionable interface has two methods:
 
 - GetActions() *ActionItem
-- GetCanvas() fyne.Canvas
+- GetCanvas() Fyne.Canvas
 
 These are implemented by types that have actions and operate on a Fyne canvas.
 */
@@ -23,7 +23,7 @@ ActionItem is a struct that represents an action. An action typically has a name
 resources associated with it (icons), an action function to trigger and some binding states.
 Instead of a function to trigger, it could have sub-actions to create complex "menu" systems
 
-The fields are as follow:
+The fields are as follows:
 - Name is a binding.String which provides a way to display a name for an action and observe changes to this name.
 - CriticalName is a bool that determines if the name is critical and should always be rendered.
 - AlwaysShowAsContainer is a bool that defines if the action should always be represented as a container even if there are no sub-actions.
@@ -32,10 +32,6 @@ The fields are as follow:
 - SubActions are nested actions.
 - HasDynamicStates is a bool that defines if the action has dynamic states that can change.
 - Disabler, Hider, and Stater are binding variables which provide a way to control the disabled, hidden, and state properties of an action and observe changes to these properties.
-
-The NewActionItem function is a factory function for creating new action items.
-
-The `AppendActions` method is to append sub actions to an existing ActionItem.
 
 The `Actionable` interface and its related items aim to provide a structured way to represent and manipulate actions in a Fyne application.
 */
@@ -53,6 +49,7 @@ type ActionItem struct {
 	Stater   binding.Int
 }
 
+// NewActionItem function is a factory function for creating new action items.
 func NewActionItem(name string, isNameCritical, alwaysShowAsContainer bool, resources []fyne.Resource, disabled bool, hidden bool, dynamicStates bool, state int, triggered func(int), subActions []*ActionItem) (action *ActionItem) {
 	action = &ActionItem{
 		Name:                  binding.NewString(),
@@ -75,6 +72,7 @@ func NewActionItem(name string, isNameCritical, alwaysShowAsContainer bool, reso
 	return
 }
 
+// AppendActions method is to append sub actions to an existing ActionItem.
 func (ai *ActionItem) AppendActions(subActions ...*ActionItem) {
 	ai.SubActions = append(ai.SubActions, subActions...)
 }

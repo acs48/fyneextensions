@@ -5,9 +5,24 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
+// EquallySpacedUnpaddedVBox is a fyne compatible layout.
+// It defines vertical box without padding, where all object have the same height.
+// Width is the container width
 type EquallySpacedUnpaddedVBox struct{}
+
+// EquallySpacedUnpaddedHBox is a fyne compatible layout.
+// It defines horizontal box without padding, where all object have the same width.
+// Height is the container height
 type EquallySpacedUnpaddedHBox struct{}
+
+// EquallySpacedPaddedVBox is a fyne compatible layout.
+// It defines vertical box with padding, where all object have the same height.
+// Width is the container width
 type EquallySpacedPaddedVBox struct{}
+
+// EquallySpacedPaddedHBox is a fyne compatible layout.
+// It defines horizontal box without padding, where all object have the same width.
+// Height is the container height
 type EquallySpacedPaddedHBox struct{}
 
 func (d *EquallySpacedUnpaddedVBox) MinSize(objects []fyne.CanvasObject) fyne.Size {
