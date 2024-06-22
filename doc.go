@@ -11,7 +11,4 @@
 //
 //	hbox := fyneextensions.NewExpandingAllProportionallyPaddedHBox(...)
 //	// Add hbox to your Fyne container
-//
-// Please note that this package works closely with Fyne, understanding Fyne's principles
-// and layout model will greatly assist in effectively utilizing this package.
 package fyneextensions
