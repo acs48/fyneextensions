@@ -5,8 +5,23 @@ import (
 	"fyne.io/fyne/v2"
 )
 
+/*
+GiveUpLastExpandingUnpaddedVBox is a Fyne compatible layout. It defines a vertical layout
+of maximum 2 objects, without padding, that does not show the last element if container
+height is not sufficient. Its MinSize() is the MinSize() of the first element.
+The last element, if visible, is always kept at its MinSize() height. The first element
+is expanded to  fill the container height. Width is the container width for all elements.
+*/
 type GiveUpLastExpandingUnpaddedVBox struct {
 }
+
+/*
+GiveUpLastExpandingUnpaddedHBox is a Fyne compatible layout. It defines a horizontal layout
+of maximum 2 objects, without padding, that does not show the last element if container
+width is not sufficient. Its MinSize() is the MinSize() of the first element.
+The last element, if visible, is always kept at its MinSize() width. The first element
+is expanded to  fill the container width. Height is the container width for all elements.
+*/
 type GiveUpLastExpandingUnpaddedHBox struct {
 }
 
