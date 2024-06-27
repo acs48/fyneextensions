@@ -26,13 +26,12 @@ type ListableSearchableWidget struct {
 
 	list ListableSearchable
 
-	mainContainer     *fyne.Container
-	searchEdit        *widget.Entry
-	moreButton        *widget.Button
-	searchButton      *widget.Button
-	clearButton       *widget.Button
-	listView          *widget.List
-	datasetMenuButton *TappableIcon
+	mainContainer *fyne.Container
+	searchEdit    *widget.Entry
+	moreButton    *widget.Button
+	searchButton  *widget.Button
+	clearButton   *widget.Button
+	listView      *widget.List
 }
 
 func NewListableSearchableWidget(iList ListableSearchable) *ListableSearchableWidget {
