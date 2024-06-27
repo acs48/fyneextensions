@@ -5,8 +5,26 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
+/*
+StackFixedRatioUnpadded is a Fyne compatible layout. It defines a stack-like layout
+where elements are tiled one on top of the other filling the container size,
+but with the difference that it keeps the ratio between width and height as from each object
+MinSize() constant.
+*/
 type StackFixedRatioUnpadded struct{}
+
+/*
+StackFixedRatioPadded is a Fyne compatible layout. It defines a stack-like layout
+where elements are tiled one on top of the other filling the container size,
+but with the difference that it keeps the ratio between width and height as from each object
+MinSize() constant. It also adds an empty border around each object of 1 theme.Padding() size
+*/
 type StackFixedRatioPadded struct{}
+
+/*
+StackPadded is a Fyne compatible layout. It behaves like container.NewStack()
+but adds an empty border around each object of 1 theme.Padding() size
+*/
 type StackPadded struct{}
 
 func (d *StackFixedRatioUnpadded) MinSize(objects []fyne.CanvasObject) fyne.Size {
