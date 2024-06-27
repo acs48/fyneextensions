@@ -13,6 +13,25 @@ import (
 	"time"
 )
 
+/*
+FlexButton is a fyne compatible widget which defines a flexible and customizable button widget.
+It provides a consistent look and feel across different parts of our app,
+and encapsulates styles and behaviors that are commonly associated with button elements.
+
+the NewFlexButton factory function should be used to create an instance of FlexButton
+
+The main additional functionalities over the standard widget.Button object are the following:
+- image and text management: it is possible to define one or more image, and dynamic text via binding.String
+- dynamic layout: it is possible to define if text must be visible, and how to layout image and text.
+- sizable: it is possible to define image size, text will be displayed or not depending on container size
+- encapsulates state: the object can hold an int state value, based on binding.Int object, depending on which it will display different image
+- can be hidden or disabled via binding.Bool objects
+- when binding.String tool tip is defined, it will push its text to the binding object when mouse is over.
+If not, the text will be displayed on a tooltip popup
+- it can include a side image when the button triggers a sub-menu
+
+It is the basic object for the MainRibbon widget
+*/
 type FlexButton struct {
 	widget.DisableableWidget
 
@@ -50,6 +69,29 @@ type FlexButton struct {
 	ToolTipper binding.String
 }
 
+/*
+NewFlexButton is the factory function for FlexButton object
+
+it requires the following inputs:
+- text: The button text.
+- images: An array of images to be displayed on the button. Each image is specified as an object that satisfies the fyne.Resource interface.
+- isTextAndIconLaidHorizontal: A boolean to determine whether the text and the image are laid out horizontally. If true, the text and image are placed side by side; otherwise, they are stacked vertically.
+- compressText: A boolean to determine whether the text must be displayed. If true and FlexButton container size is not big enough, text is omitted. This implies that MinSize() of the FlexButton is the size of the image only
+- isImagePadded: A boolean to determine whether the image is padded. If true, padding is added around the image within the button's bounds.
+- hasMoreIcon: A boolean to determine whether the button has a "more" icon. If true, a "more" icon is displayed side or below the button to indicate the presence of additional functionality or content.
+- isMoreIconBelow: A boolean to determine the placement of the "more" icon. If true, the "more" icon is placed below the button content.
+- fullHeight: The full height of the button. For text and image laid out vertically with compressText=false, this is the image height + text height. On other cases it is the image height only
+- textHeight: The height of the button text. The combination of fullHeight, textHeight and compressText define the FlexButton MinSize() and layout
+- mCanvas: The fyne.Canvas where the button is rendered.
+- onTapped: The function to be called when the button is tapped. OnTapped requires an int as input, which is the state of the button when OnTapped is called
+- texter: A binding that determines the text displayed on the button.
+- disabler: A binding that determines whether the button is disabled.
+- hider: A binding that determines whether the button is visible.
+- stater: A binding that determines the state of the button.
+- toolTipper: A binding that determines the tooltip text for the button.
+Returns:
+- A pointer to the created FlexButton instance.
+*/
 func NewFlexButton(text string, images []fyne.Resource, isTextAndIconLaidHorizontal bool, compressText bool, isImagePadded bool, hasMoreIcon bool, isMoreIconBelow bool, fullHeight float32, textHeight float32, mCanvas fyne.Canvas, onTapped func(int), texter binding.String, disabler binding.Bool, hider binding.Bool, stater binding.Int, toolTipper binding.String) *FlexButton {
 	t := &FlexButton{
 		mBackground:        canvas.NewRectangle(theme.ButtonColor()),
@@ -337,7 +379,6 @@ func (t *FlexButton) MouseOut() {
 	}
 }
 
-// SetMinSize fff
 func (t *FlexButton) SetMinSize(size fyne.Size) {
 	for _, o := range t.mPrimImage {
 		o.SetMinSize(size)
