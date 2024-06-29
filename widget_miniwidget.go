@@ -9,6 +9,11 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// MiniWidget is a Fyne compatible widget. It represents a miniaturized widget structure in the GUI
+// which can be adapted to multiple usages, such as menu ribbons, sidebars, etc.
+// It's ideal for use-cases like notifications, small data charts, or compact control elements.
+// It can be configured with a header or footer area, with close, minimize, move up and move down buttons
+// An instance of a MiniWidget can be created with the factory NewMiniWidget
 type MiniWidget struct {
 	widget.DisableableWidget
 	mContainer      *fyne.Container
@@ -44,6 +49,31 @@ type MiniWidget struct {
 	mMoreButton *FlexButton
 }
 
+// NewMiniWidget is a factory function that creates and initializes a new MiniWidget.
+//
+// The function accepts the following parameters:
+//
+//	header: a string that sets the header of the MiniWidget.
+//	headerOnTop: a bool that determines if the header should be on top or bottom of the MiniWidget.
+//	headerSize: a float32 that sets the size of the header.
+//	content: a fyne.CanvasObject which represents the content of the MiniWidget.
+//	shadowed: a bool to enable or disable shadow for the MiniWidget.
+//	showMinimize: a bool to show or hide minimize functionality for the MiniWidget.
+//	onMinimize: a callback function that gets executed when the MiniWidget is minimized.
+//	showClose: a bool to show or hide close functionality for the MiniWidget.
+//	onClose: a callback function that gets executed when the MiniWidget is closed.
+//	showMove: a bool to enable or disable movement functionality for the MiniWidget.
+//	onMoveUp: a callback function that gets executed when the MiniWidget is moved upwards.
+//	onMoveDown: a callback function that gets executed when the MiniWidget is moved downwards.
+//	showMore: a bool to enable or disable more functionality for the MiniWidget.
+//	onMore: a callback function that gets executed when the more button on the MiniWidget is clicked.
+//	texter: a binding.String instance to bind header text to the MiniWidget.
+//	disabler: a binding.Bool instance to disable the MiniWidget.
+//	closer: a binding.Bool instance to bind custom close function to the MiniWidget.
+//	minimizer: a binding.Int instance to bind custom minimize function to the MiniWidget.
+//	mCanvas: a fyne.Canvas instance where the MiniWidget will be drawn.
+//
+// This function returns a pointer to a fully initialized MiniWidget.
 func NewMiniWidget(header string, headerOnTop bool, headerSize float32,
 	content fyne.CanvasObject, shadowed bool,
 	showMinimize bool, onMinimize func(bool), showClose bool, onClose func(), showMove bool, onMoveUp func(miniWidget *MiniWidget), onMoveDown func(miniWidget *MiniWidget), showMore bool, onMore func(fyne.CanvasObject),

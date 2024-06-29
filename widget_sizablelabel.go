@@ -9,6 +9,10 @@ import (
 	"image/color"
 )
 
+// SizableLabel is a Fyne compatible widget. It is to all extents a simple label. The only difference
+// with the built-in widget.Label is that the SizableLabel is configured by the CanvasObject size instead
+// of the font size. This comes useful when you need to ensure certain proportions between your GUI components
+// although readability of your text is at your risk.
 type SizableLabel struct {
 	widget.BaseWidget
 	mText       *canvas.Text

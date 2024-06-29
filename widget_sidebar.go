@@ -6,6 +6,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// SideBar is a Fyne compatible widget which acts as a container for MiniWidget components.
+// It can manage basic functionalities such as adding content to the sidebar and moving child objects up and down
 type SideBar struct {
 	widget.BaseWidget
 
