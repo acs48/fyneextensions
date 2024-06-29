@@ -1,14 +1,25 @@
 // Package fyneextensions provides additional utilities and helpers to extend the functionality
-// of the Fyne toolkit. These extensions offer extended layouts, custom widgets and additional
-// conveniences to simplify the creation of intricate and complex user interfaces.
+// of the Fyne toolkit (https://fyne.io/). These extensions offer extended layouts, custom widgets
+// and additional conveniences to simplify the creation of user interfaces.
 //
 // The package includes:
-//   - Extended layout mechanisms such as ExpandingAllProportionallyPaddedHBox, aiming to provide
-//     more advanced and customizable layout control for Fyne applications.
-//   - Additional helper functions that extend the core capabilities of the Fyne toolkit.
+// - Fyne compatible layouts to be used with container.New():
+//   - PaddedBox, MaxMinBox,
+//   - EquallySpacedUnpaddedVBox, EquallySpacedUnpaddedHBox, EquallySpacedPaddedVBox, EquallySpacedPaddedHBox,
+//   - ExpandingLastUnpaddedVBox, ExpandingFirstUnpaddedVBox, ExpandingLastPaddedVBox, ExpandingFirstPaddedVBox, ExpandingFirstUnpaddedHBox, ExpandingLastUnpaddedHBox, ExpandingFirstPaddedHBox, ExpandingAllProportionallyPaddedHBox,
+//   - GiveUpLastExpandingUnpaddedVBox, GiveUpLastExpandingUnpaddedHBox
+//   - ShadowedLayout,
+//   - StackFixedRatioUnpadded, StackFixedRatioPadded, StackPadded
 //
-// Example usage:
+// - Fyne compatible widgets:
 //
-//	hbox := fyneextensions.NewExpandingAllProportionallyPaddedHBox(...)
-//	// Add hbox to your Fyne container
+//   - SizableLabel, MiniWidget, FlexButton, ListableSearchableWidget, MainRibbon, SideBar
+//
+//   - Utilities:
+//
+//   - FormGenUtility,
+//
+//   - ActionItem, ActionableMenu
+//
+// Example:
 package fyneextensions
