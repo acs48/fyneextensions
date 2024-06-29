@@ -7,6 +7,20 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+/*
+ListableSearchable defines the basic operations and behavior required for a ListableSearchableWidget.
+
+Methods:
+- ListLen() int: This method returns the length of the list.
+- CreateListItem() fyne.CanvasObject: This method creates a list item and returns a fyne.CanvasObject. The concrete implementation of this object can vary. Note that this constructor does not need actual data to be displayed, but only the constructors fof the CanvasObjects which will hold the data
+- UpdateListItem(int, fyne.CanvasObject): This method updates a list item at a given index position with a fyne.CanvasObject. This will introduce actual data into the list
+- GetSelected() int: This method returns the index position of the currently selected item in the list.
+- OnSelectedItem(int): This method defines what to do when an item in the list is selected. The specific action is determined by the integer parameter, which represents the index of the item.
+- GetListableSearchableActions() *ActionItem: This method returns the actions related to ListableSearchable widget. If the returned *ActionItem is not nil, the widget will display a customized menu
+- GetCanvas() fyne.Canvas: This method must return the canvas object where the ListableSearchableWidget will be displayed.
+- ClearSearch(): Clears the current search results.
+- StartSearch(string): This method starts a search operation on the list using the input string as the query.
+*/
 type ListableSearchable interface {
 	ListLen() int
 	CreateListItem() fyne.CanvasObject
@@ -21,6 +35,16 @@ type ListableSearchable interface {
 	StartSearch(string)
 }
 
+/*
+The ListableSearchableWidget struct is a Fyne compatible widget.
+The widget can display a list of items with a search bar with a default Search and Clear button.
+The search bar can also include a customized menu.
+
+it is possible to associate to a ListableSearchableWidget any object which implements ListableSearchable interface
+
+Constructor:
+- NewListableSearchableWidget: Returns a new instance of the ListableSearchableWidget struct.
+*/
 type ListableSearchableWidget struct {
 	widget.BaseWidget
 
