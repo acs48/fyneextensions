@@ -171,7 +171,7 @@ func (dm *sampleList) StartSearch(text string) {
 }
 
 // Example function demonstrating the fyneextensions widgets
-func main() {
+func ExampleDemo() {
 	// Instantiate the Fyne application
 	a := app.New()
 
