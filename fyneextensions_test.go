@@ -2,17 +2,176 @@ package fyneextensions
 
 import (
 	"fmt"
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"testing"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
+	"sort"
+	"strings"
 )
 
-// Sample test function (replace "FunctionName" with an actual function you want to test)
-func TestFyneextensions(t *testing.T) {
-	// Test code here
+type homeAction struct {
+	mAction *ActionItem
+	w       fyne.Window
 }
 
-// Example function demonstrating a basic Fyne window creation
-func ExampleFyneextensions() {
+func newHomeAction(w fyne.Window) *homeAction {
+	rv := &homeAction{
+		w: w,
+		mAction: NewActionItem("Home", false, false, []fyne.Resource{theme.FileApplicationIcon()}, false, false, false, 0, nil, []*ActionItem{
+			NewActionItem("File", false, false, []fyne.Resource{theme.FileApplicationIcon()}, false, false, false, 0, nil, []*ActionItem{
+				NewActionItem("New", false, false, []fyne.Resource{theme.DocumentCreateIcon()}, false, false, false, 0, func(int) {}, nil),
+				NewActionItem("Open", false, false, []fyne.Resource{theme.FolderOpenIcon()}, false, false, false, 0, func(int) {}, nil),
+				NewActionItem("Save", false, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, nil, []*ActionItem{
+					NewActionItem("Save", true, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, func(int) {}, nil),
+					NewActionItem("Save as", true, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, func(int) {}, nil),
+				}),
+			}),
+		}),
+	}
+	return rv
+}
+
+func (ha *homeAction) GetActions() *ActionItem {
+	return ha.mAction
+}
+
+func (ha *homeAction) GetCanvas() fyne.Canvas {
+	return ha.w.Canvas()
+}
+
+type editAction struct {
+	mAction *ActionItem
+	w       fyne.Window
+}
+
+func newEditAction(w fyne.Window) *editAction {
+	checkerItem := NewActionItem("Check me!", true, false, []fyne.Resource{theme.CheckButtonIcon(), theme.CheckButtonCheckedIcon()}, false, false, true, 0, func(int) {}, nil)
+	checkerItem.Triggered = func(i int) {
+		if i == 0 {
+			checkerItem.Stater.Set(1)
+		} else {
+			checkerItem.Stater.Set(0)
+		}
+	}
+	rv := &editAction{
+		w: w,
+		mAction: NewActionItem("Edit", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*ActionItem{
+			NewActionItem("Clipboard", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*ActionItem{
+				NewActionItem("Copy", false, false, []fyne.Resource{theme.ContentCopyIcon()}, false, false, false, 0, func(int) {}, nil),
+				NewActionItem("Cut", false, false, []fyne.Resource{theme.ContentCutIcon()}, false, false, false, 0, func(int) {}, nil),
+				NewActionItem("Paste", false, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, nil, []*ActionItem{
+					NewActionItem("Paste", true, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, func(int) {}, nil),
+					NewActionItem("Paste Special", true, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, func(int) {}, nil),
+				}),
+			}),
+			NewActionItem("Enable", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*ActionItem{
+				checkerItem,
+			}),
+		}),
+	}
+	return rv
+}
+
+func (ea *editAction) GetActions() *ActionItem {
+	return ea.mAction
+}
+
+func (ea *editAction) GetCanvas() fyne.Canvas {
+	return ea.w.Canvas()
+}
+
+type mStringList []string
+
+func (lst mStringList) Len() int {
+	return len(lst)
+}
+func (lst mStringList) Less(i, j int) bool {
+	return lst[i] < lst[j]
+}
+func (lst mStringList) Swap(i, j int) {
+	lst[i], lst[j] = lst[j], lst[i]
+}
+
+type sampleList struct {
+	allItems     mStringList
+	visibleItems mStringList
+	selectedItem string
+
+	mWindow fyne.Window
+}
+
+func (dm *sampleList) GetCanvas() fyne.Canvas {
+	return dm.mWindow.Canvas()
+}
+
+func (dm *sampleList) ListLen() int {
+	return len(dm.visibleItems)
+}
+
+func (dm *sampleList) CreateListItem() fyne.CanvasObject {
+	name := widget.NewLabel("")
+	return name
+}
+
+func (dm *sampleList) UpdateListItem(i int, o fyne.CanvasObject) {
+	if i >= 0 && i < len(dm.visibleItems) {
+		o.(*widget.Label).SetText(dm.visibleItems[i])
+	}
+}
+
+func (dm *sampleList) GetSelected() (id int) {
+	id = -1
+	for i, ptr := range dm.visibleItems {
+		if ptr == dm.selectedItem {
+			id = i
+		}
+	}
+	return
+}
+
+func (dm *sampleList) OnSelectedItem(id int) {
+	if id >= 0 && id < len(dm.visibleItems) {
+		if dm.selectedItem != dm.visibleItems[id] {
+			dm.selectedItem = dm.visibleItems[id]
+		}
+	}
+}
+
+func (dm *sampleList) ClearSearch() {
+	dm.visibleItems = dm.visibleItems[0:len(dm.allItems)]
+	i := 0
+	for _, dtsPtr := range dm.allItems {
+		dm.visibleItems[i] = dtsPtr
+		i++
+	}
+	dm.visibleItems = dm.visibleItems[0:i]
+	sort.Sort(dm.visibleItems)
+}
+
+func (dm *sampleList) GetListableSearchableActions() *ActionItem {
+	return nil
+}
+
+func (dm *sampleList) StartSearch(text string) {
+	if text != "" {
+		j := 0
+		dm.visibleItems = dm.visibleItems[0:cap(dm.visibleItems)]
+		for _, dst := range dm.allItems {
+			if strings.Contains(strings.ToUpper(dst), strings.ToUpper(text)) || strings.Contains(strings.ToUpper(dst), strings.ToUpper(text)) {
+				dm.visibleItems[j] = dst
+				j++
+			}
+		}
+		dm.visibleItems = dm.visibleItems[0:j]
+		sort.Sort(dm.visibleItems)
+	}
+}
+
+// Example function demonstrating the fyneextensions widgets
+func main() {
 	// Instantiate the Fyne application
 	a := app.New()
 
@@ -20,8 +179,66 @@ func ExampleFyneextensions() {
 	w := a.NewWindow("Fyne Window")
 
 	// Set the main window content
-	// TODO: Add more elements to the window as needed for the demonstration
+	messageString := binding.NewString()
+	messageLabel := widget.NewLabelWithData(messageString)
 
+	mHomeAction := newHomeAction(w)
+	mEditAction := newEditAction(w)
+	mRibbon := container.NewAppTabs()
+	homeTab, _ := BuildTabItemRibbon(mHomeAction, 60., 30., messageString)
+	homeMenu := NewActionableMenu(mHomeAction.GetActions())
+	mRibbon.Append(homeTab)
+	editTab, _ := BuildTabItemRibbon(mEditAction, 60., 30., messageString)
+	editMenu := NewActionableMenu(mEditAction.GetActions())
+	mRibbon.Append(editTab)
+
+	projectTree := widget.NewTree(
+		func(id widget.TreeNodeID) []widget.TreeNodeID {
+			switch id {
+			case "":
+				return []widget.TreeNodeID{"a", "b", "c"}
+			case "a":
+				return []widget.TreeNodeID{"a1", "a2"}
+			}
+			return []string{}
+		},
+		func(id widget.TreeNodeID) bool {
+			return id == "" || id == "a"
+		},
+		func(branch bool) fyne.CanvasObject {
+			if branch {
+				return widget.NewLabel("Branch template")
+			}
+			return widget.NewLabel("Leaf template")
+		},
+		func(id widget.TreeNodeID, branch bool, o fyne.CanvasObject) {
+			text := id
+			if branch {
+				text += " (branch)"
+			}
+			o.(*widget.Label).SetText(text)
+		})
+	widgetTree := NewMiniWidget("PROJECT", true, 20., projectTree, false, true, nil, false, nil, true, nil, nil, false, nil, nil, nil, nil, nil, w.Canvas())
+	listItem := &sampleList{
+		allItems:     mStringList{"alfa", "beta", "gamma", "delta"},
+		visibleItems: make(mStringList, 4),
+		mWindow:      w,
+	}
+	listItem.ClearSearch()
+	searchList := NewListableSearchableWidget(listItem)
+	searchWidget := NewMiniWidget("ITEMS", true, 20., searchList, false, true, nil, false, nil, true, nil, nil, false, nil, nil, nil, nil, nil, w.Canvas())
+
+	mainContent := container.NewStack()
+	sideContent := NewSideBar(widgetTree, searchWidget)
+	split := container.NewHSplit(sideContent, mainContent)
+
+	mainContainer := container.NewBorder(mRibbon, messageLabel, nil, nil, mRibbon, messageLabel, split)
+
+	w.SetContent(mainContainer)
+	w.SetMainMenu(fyne.NewMainMenu(
+		homeMenu.Menu,
+		editMenu.Menu,
+	))
 	// Show and run the application
 	w.ShowAndRun()
 
@@ -29,5 +246,4 @@ func ExampleFyneextensions() {
 	// Let's print something instead
 	fmt.Println("A new Fyne window has been created and shown.")
 
-	// Output: A new Fyne window has been created and shown.
 }
