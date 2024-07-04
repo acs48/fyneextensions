@@ -1,4 +1,4 @@
-package fyneextensions
+package main
 
 import (
 	"fmt"
@@ -8,25 +8,26 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/acs48/fyneextensions"
 	"sort"
 	"strings"
 )
 
 type homeAction struct {
-	mAction *ActionItem
+	mAction *fyneextensions.ActionItem
 	w       fyne.Window
 }
 
 func newHomeAction(w fyne.Window) *homeAction {
 	rv := &homeAction{
 		w: w,
-		mAction: NewActionItem("Home", false, false, []fyne.Resource{theme.FileApplicationIcon()}, false, false, false, 0, nil, []*ActionItem{
-			NewActionItem("File", false, false, []fyne.Resource{theme.FileApplicationIcon()}, false, false, false, 0, nil, []*ActionItem{
-				NewActionItem("New", false, false, []fyne.Resource{theme.DocumentCreateIcon()}, false, false, false, 0, func(int) {}, nil),
-				NewActionItem("Open", false, false, []fyne.Resource{theme.FolderOpenIcon()}, false, false, false, 0, func(int) {}, nil),
-				NewActionItem("Save", false, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, nil, []*ActionItem{
-					NewActionItem("Save", true, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, func(int) {}, nil),
-					NewActionItem("Save as", true, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, func(int) {}, nil),
+		mAction: fyneextensions.NewActionItem("Home", false, false, []fyne.Resource{theme.FileApplicationIcon()}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
+			fyneextensions.NewActionItem("File", false, false, []fyne.Resource{theme.FileApplicationIcon()}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
+				fyneextensions.NewActionItem("New", false, false, []fyne.Resource{theme.DocumentCreateIcon()}, false, false, false, 0, func(int) {}, nil),
+				fyneextensions.NewActionItem("Open", false, false, []fyne.Resource{theme.FolderOpenIcon()}, false, false, false, 0, func(int) {}, nil),
+				fyneextensions.NewActionItem("Save", false, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
+					fyneextensions.NewActionItem("Save", true, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, func(int) {}, nil),
+					fyneextensions.NewActionItem("Save as", true, false, []fyne.Resource{theme.DocumentSaveIcon()}, false, false, false, 0, func(int) {}, nil),
 				}),
 			}),
 		}),
@@ -34,7 +35,7 @@ func newHomeAction(w fyne.Window) *homeAction {
 	return rv
 }
 
-func (ha *homeAction) GetActions() *ActionItem {
+func (ha *homeAction) GetActions() *fyneextensions.ActionItem {
 	return ha.mAction
 }
 
@@ -43,12 +44,12 @@ func (ha *homeAction) GetCanvas() fyne.Canvas {
 }
 
 type editAction struct {
-	mAction *ActionItem
+	mAction *fyneextensions.ActionItem
 	w       fyne.Window
 }
 
 func newEditAction(w fyne.Window) *editAction {
-	checkerItem := NewActionItem("Check me!", true, false, []fyne.Resource{theme.CheckButtonIcon(), theme.CheckButtonCheckedIcon()}, false, false, true, 0, func(int) {}, nil)
+	checkerItem := fyneextensions.NewActionItem("Check me!", true, false, []fyne.Resource{theme.CheckButtonIcon(), theme.CheckButtonCheckedIcon()}, false, false, true, 0, func(int) {}, nil)
 	checkerItem.Triggered = func(i int) {
 		if i == 0 {
 			checkerItem.Stater.Set(1)
@@ -58,16 +59,16 @@ func newEditAction(w fyne.Window) *editAction {
 	}
 	rv := &editAction{
 		w: w,
-		mAction: NewActionItem("Edit", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*ActionItem{
-			NewActionItem("Clipboard", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*ActionItem{
-				NewActionItem("Copy", false, false, []fyne.Resource{theme.ContentCopyIcon()}, false, false, false, 0, func(int) {}, nil),
-				NewActionItem("Cut", false, false, []fyne.Resource{theme.ContentCutIcon()}, false, false, false, 0, func(int) {}, nil),
-				NewActionItem("Paste", false, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, nil, []*ActionItem{
-					NewActionItem("Paste", true, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, func(int) {}, nil),
-					NewActionItem("Paste Special", true, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, func(int) {}, nil),
+		mAction: fyneextensions.NewActionItem("Edit", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
+			fyneextensions.NewActionItem("Clipboard", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
+				fyneextensions.NewActionItem("Copy", false, false, []fyne.Resource{theme.ContentCopyIcon()}, false, false, false, 0, func(int) {}, nil),
+				fyneextensions.NewActionItem("Cut", false, false, []fyne.Resource{theme.ContentCutIcon()}, false, false, false, 0, func(int) {}, nil),
+				fyneextensions.NewActionItem("Paste", false, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
+					fyneextensions.NewActionItem("Paste", true, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, func(int) {}, nil),
+					fyneextensions.NewActionItem("Paste Special", true, false, []fyne.Resource{theme.ContentPasteIcon()}, false, false, false, 0, func(int) {}, nil),
 				}),
 			}),
-			NewActionItem("Enable", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*ActionItem{
+			fyneextensions.NewActionItem("Enable", false, false, []fyne.Resource{}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
 				checkerItem,
 			}),
 		}),
@@ -75,7 +76,7 @@ func newEditAction(w fyne.Window) *editAction {
 	return rv
 }
 
-func (ea *editAction) GetActions() *ActionItem {
+func (ea *editAction) GetActions() *fyneextensions.ActionItem {
 	return ea.mAction
 }
 
@@ -151,7 +152,7 @@ func (dm *sampleList) ClearSearch() {
 	sort.Sort(dm.visibleItems)
 }
 
-func (dm *sampleList) GetListableSearchableActions() *ActionItem {
+func (dm *sampleList) GetListableSearchableActions() *fyneextensions.ActionItem {
 	return nil
 }
 
@@ -171,7 +172,7 @@ func (dm *sampleList) StartSearch(text string) {
 }
 
 // Example function demonstrating the fyneextensions widgets
-func ExampleDemo() {
+func main() {
 	// Instantiate the Fyne application
 	a := app.New()
 
@@ -185,11 +186,11 @@ func ExampleDemo() {
 	mHomeAction := newHomeAction(w)
 	mEditAction := newEditAction(w)
 	mRibbon := container.NewAppTabs()
-	homeTab, _ := BuildTabItemRibbon(mHomeAction, 60., 30., messageString)
-	homeMenu := NewActionableMenu(mHomeAction.GetActions())
+	homeTab, _ := fyneextensions.BuildTabItemRibbon(mHomeAction, 60., 30., messageString)
+	homeMenu := fyneextensions.NewActionableMenu(mHomeAction.GetActions())
 	mRibbon.Append(homeTab)
-	editTab, _ := BuildTabItemRibbon(mEditAction, 60., 30., messageString)
-	editMenu := NewActionableMenu(mEditAction.GetActions())
+	editTab, _ := fyneextensions.BuildTabItemRibbon(mEditAction, 60., 30., messageString)
+	editMenu := fyneextensions.NewActionableMenu(mEditAction.GetActions())
 	mRibbon.Append(editTab)
 
 	projectTree := widget.NewTree(
@@ -218,18 +219,18 @@ func ExampleDemo() {
 			}
 			o.(*widget.Label).SetText(text)
 		})
-	widgetTree := NewMiniWidget("PROJECT", true, 20., projectTree, false, true, nil, false, nil, true, nil, nil, false, nil, nil, nil, nil, nil, w.Canvas())
+	widgetTree := fyneextensions.NewMiniWidget("PROJECT", true, 20., projectTree, false, true, nil, false, nil, true, nil, nil, false, nil, nil, nil, nil, nil, w.Canvas())
 	listItem := &sampleList{
 		allItems:     mStringList{"alfa", "beta", "gamma", "delta"},
 		visibleItems: make(mStringList, 4),
 		mWindow:      w,
 	}
 	listItem.ClearSearch()
-	searchList := NewListableSearchableWidget(listItem)
-	searchWidget := NewMiniWidget("ITEMS", true, 20., searchList, false, true, nil, false, nil, true, nil, nil, false, nil, nil, nil, nil, nil, w.Canvas())
+	searchList := fyneextensions.NewListableSearchableWidget(listItem)
+	searchWidget := fyneextensions.NewMiniWidget("ITEMS", true, 20., searchList, false, true, nil, false, nil, true, nil, nil, false, nil, nil, nil, nil, nil, w.Canvas())
 
 	mainContent := container.NewStack()
-	sideContent := NewSideBar(widgetTree, searchWidget)
+	sideContent := fyneextensions.NewSideBar(widgetTree, searchWidget)
 	split := container.NewHSplit(sideContent, mainContent)
 
 	mainContainer := container.NewBorder(mRibbon, messageLabel, nil, nil, mRibbon, messageLabel, split)
