@@ -160,6 +160,11 @@ func (t *ListableSearchableWidget) DataChanged() {
 
 func (t *ListableSearchableWidget) ResetListableSearchableAndRefresh(mList ListableSearchable) {
 	if t.list == mList {
+		if t.list != nil {
+			if selId := t.list.GetSelected(); selId != -1 {
+				t.listView.Select(selId)
+			}
+		}
 		t.listView.Refresh()
 	} else {
 		t.list = mList
