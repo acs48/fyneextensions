@@ -40,6 +40,9 @@ Here are the tags available for customization:
   - `formGenDescription`: This tag provides a descriptive label to a form field.
     This will be shown side of the entry on the form
 
+  - `formGenLabel`: This tag provides a descriptive label to a form field.
+    This will be shown side of the check or radio items
+
   - `formGenMaxVal` and `formGenMinVal`: These tags determine the maximum and minimum
     values for numeric form fields. If out of range, it causes a validation error.
 
@@ -69,6 +72,10 @@ Here are the tags available for customization:
     Options as should be shown in the dropdown select entry are defined as options in this tag.
     Each option should be separated by "|||"
     for example `formGenOptions` "Selection 1|||Selection 2|||Selection 3"
+
+  - `formGenRadioGroup`, 'formGenCheckGroup': This tag allows defining a group of check
+    or radio buttons (on a single line). The tag value should be a unique string which
+    defines the group.
 
 Each field of the struct corresponds to a field on the form,
 and the types, labels, and other behaviors of the form fields are
