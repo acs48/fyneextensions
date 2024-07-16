@@ -24,6 +24,7 @@ Currently supported types are:
   - string
   - int, int8, int16, int32, int64
   - float32 and float64
+  - bool
   - time.Time and time.Duration
   - slice of string []string
   - int alias for dropdown select entry only, e.g. type weekday int
@@ -117,6 +118,11 @@ func (fgu *FormGenUtility) createFormItems() {
 	t := v.Type()
 
 	firstEntrySet := false
+	radioGroupEntries := make(map[string]*widget.RadioGroup)
+	radioGroupFields := make(map[string]map[string]reflect.Value)
+	checkGroupEntries := make(map[string]*widget.CheckGroup)
+	checkGroupFields := make(map[string]map[string]reflect.Value)
+
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		if field.IsExported() {
@@ -132,7 +138,11 @@ func (fgu *FormGenUtility) createFormItems() {
 
 			include, includeOk := field.Tag.Lookup("formGenInclude")
 			if includeOk && strings.ToLower(include) != "false" {
-				label := field.Tag.Get("formGenDescription")
+				description := field.Tag.Get("formGenDescription")
+				if description == "" {
+					description = fieldName
+				}
+				label := field.Tag.Get("formGenLabel")
 				if label == "" {
 					label = fieldName
 				}
@@ -150,6 +160,9 @@ func (fgu *FormGenUtility) createFormItems() {
 				onChangeCallbackFunc := v.MethodByName(onChangeCallbackStrg)
 
 				dropDown, dropDownOk := field.Tag.Lookup("formGenOptions")
+
+				radioGroupName, radioGroupOk := field.Tag.Lookup("formGenRadioGroup")
+				checkGroupName, checkGroupOk := field.Tag.Lookup("formGenCheckGroup")
 
 				var entry fyne.CanvasObject
 				floatBS := 0
@@ -396,35 +409,141 @@ func (fgu *FormGenUtility) createFormItems() {
 					entryEnabler = mEntry.Enable
 					entry = mEntry
 				case reflect.TypeOf(true):
-					var callbackFunc func(bool)
-					if onChangeCallbackFunc.IsValid() {
-						callbackFunc = func(b bool) {
-							onChangeCallbackFunc.Call([]reflect.Value{reflect.ValueOf(b), reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())})
+					if checkGroupOk {
+						var callbackFunc func([]string)
+						if onChangeCallbackFunc.IsValid() {
+							callbackFunc = func(b []string) {
+								onChangeCallbackFunc.Call([]reflect.Value{reflect.ValueOf(b), reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())})
+							}
 						}
-					}
 
-					mEntry := widget.NewCheck(label, callbackFunc)
-					if !firstEntrySet {
-						fgu.firstEntry = mEntry
-						firstEntrySet = true
-					}
+						var mEntry *widget.CheckGroup
+						if mCheckGroupEntry, ok := checkGroupEntries[checkGroupName]; ok {
+							mEntry = mCheckGroupEntry
+							mEntry.OnChanged = callbackFunc
+						} else {
+							mEntry = widget.NewCheckGroup([]string{}, callbackFunc)
+							mEntry.Horizontal = true
+							checkGroupEntries[checkGroupName] = mEntry
+							checkGroupFields[checkGroupName] = make(map[string]reflect.Value)
+							entry = mEntry
 
-					label = ""
+						}
+						mEntry.Append(label)
+						checkGroupFields[checkGroupName][label] = fieldValue
 
-					defaultValL := strings.ToLower(defaultValStrg)
-					if defaultValL == "true" {
-						mEntry.SetChecked(true)
+						//if !firstEntrySet {
+						//	fgu.firstEntry = mEntry
+						//	firstEntrySet = true
+						//}
+
+						fieldSetterFunc = func() {
+							ttp := mEntry.Selected
+							checkGroupFields[checkGroupName][label].SetBool(false)
+							for _, s := range ttp {
+								if s == label {
+									checkGroupFields[checkGroupName][label].SetBool(true)
+								}
+							}
+						}
+						entrySetterFunc = func() {
+							selected := make([]string, 0)
+							for s, f := range checkGroupFields[checkGroupName] {
+								if f.Bool() {
+									selected = append(selected, s)
+								}
+							}
+							mEntry.SetSelected(selected)
+						}
+						entryDisabler = mEntry.Disable
+						entryEnabler = mEntry.Enable
+
+						defaultValL := strings.ToLower(defaultValStrg)
+						if defaultValL == "true" {
+							mEntry.Selected = append(mEntry.Selected, label) //.SetChecked(true)
+						}
+					} else if radioGroupOk {
+						var callbackFunc func(string)
+						if onChangeCallbackFunc.IsValid() {
+							callbackFunc = func(b string) {
+								onChangeCallbackFunc.Call([]reflect.Value{reflect.ValueOf(b), reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())})
+							}
+						}
+
+						var mEntry *widget.RadioGroup
+						if mRadioGroupEntry, ok := radioGroupEntries[radioGroupName]; ok {
+							mEntry = mRadioGroupEntry
+							mEntry.OnChanged = callbackFunc
+						} else {
+							mEntry = widget.NewRadioGroup([]string{}, callbackFunc)
+							mEntry.Horizontal = true
+							radioGroupEntries[radioGroupName] = mEntry
+							radioGroupFields[radioGroupName] = make(map[string]reflect.Value)
+							entry = mEntry
+
+						}
+						mEntry.Append(label)
+						radioGroupFields[radioGroupName][label] = fieldValue
+
+						//if !firstEntrySet {
+						//	fgu.firstEntry = mEntry
+						//	firstEntrySet = true
+						//}
+
+						fieldSetterFunc = func() {
+							ttp := mEntry.Selected
+							if ttp == label {
+								radioGroupFields[radioGroupName][label].SetBool(true)
+							} else {
+								radioGroupFields[radioGroupName][label].SetBool(false)
+							}
+						}
+						entrySetterFunc = func() {
+							selected := ""
+							for s, f := range radioGroupFields[radioGroupName] {
+								if f.Bool() {
+									selected = s
+									break
+								}
+							}
+							mEntry.SetSelected(selected)
+						}
+						entryDisabler = mEntry.Disable
+						entryEnabler = mEntry.Enable
+
+						defaultValL := strings.ToLower(defaultValStrg)
+						if defaultValL == "true" {
+							mEntry.Selected = label //.SetChecked(true)
+						}
+					} else {
+						var callbackFunc func(bool)
+						if onChangeCallbackFunc.IsValid() {
+							callbackFunc = func(b bool) {
+								onChangeCallbackFunc.Call([]reflect.Value{reflect.ValueOf(b), reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())})
+							}
+						}
+
+						mEntry := widget.NewCheck(label, callbackFunc)
+						if !firstEntrySet {
+							fgu.firstEntry = mEntry
+							firstEntrySet = true
+						}
+
+						defaultValL := strings.ToLower(defaultValStrg)
+						if defaultValL == "true" {
+							mEntry.SetChecked(true)
+						}
+						fieldSetterFunc = func() {
+							ttp := mEntry.Checked
+							fieldValue.SetBool(ttp)
+						}
+						entrySetterFunc = func() {
+							mEntry.SetChecked(fieldValue.Bool())
+						}
+						entryDisabler = mEntry.Disable
+						entryEnabler = mEntry.Enable
+						entry = mEntry
 					}
-					fieldSetterFunc = func() {
-						ttp := mEntry.Checked
-						fieldValue.SetBool(ttp)
-					}
-					entrySetterFunc = func() {
-						mEntry.SetChecked(fieldValue.Bool())
-					}
-					entryDisabler = mEntry.Disable
-					entryEnabler = mEntry.Enable
-					entry = mEntry
 				case reflect.TypeOf(time.Time{}):
 					mEntry := widget.NewEntry()
 					if !firstEntrySet {
@@ -738,8 +857,10 @@ func (fgu *FormGenUtility) createFormItems() {
 				fgu.entryEnabler[fieldName] = entryEnabler
 				fgu.entryDisabler[fieldName] = entryDisabler
 
-				nItem := widget.NewFormItem(label, entry)
-				fgu.formItems = append(fgu.formItems, nItem)
+				if entry != nil {
+					nItem := widget.NewFormItem(description, entry)
+					fgu.formItems = append(fgu.formItems, nItem)
+				}
 			}
 		}
 	}
