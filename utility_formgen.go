@@ -102,18 +102,34 @@ type FormGenUtility struct {
 	formWidget *widget.Form
 }
 
+// OverrideEntry overrides the content of the entry from the value stored in the specified field.
+// Field name must mach the field as typed in the struct passed to the FormGenUtility. Use to
+// update the entry in the form if the struct is altered, while the form is open
 func (fgu *FormGenUtility) OverrideEntry(fieldName string) {
 	if f, ok := fgu.entrySetter[fieldName]; ok {
 		f()
 	}
 }
 
+// OverrideField overrides the value stored in the struct from the value in the dedicated entry.
+// Field name must mach the field as typed in the struct passed to the FormGenUtility. Use to
+// update the struct from the entry before the Confirm button is pressed in the form
+func (fgu *FormGenUtility) OverrideField(fieldName string) {
+	if f, ok := fgu.fieldSetter[fieldName]; ok {
+		f()
+	}
+}
+
+// EnableEntry enables the entry in the form.
+// Field name must mach the field as typed in the struct passed to the FormGenUtility.
 func (fgu *FormGenUtility) EnableEntry(fieldName string) {
 	if f, ok := fgu.entryEnabler[fieldName]; ok {
 		f()
 	}
 }
 
+// DisableEntry disables the entry in the form
+// Field name must mach the field as typed in the struct passed to the FormGenUtility.
 func (fgu *FormGenUtility) DisableEntry(fieldName string) {
 	if f, ok := fgu.entryDisabler[fieldName]; ok {
 		f()
