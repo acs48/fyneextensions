@@ -178,6 +178,10 @@ func (fgu *FormGenUtility) createFormItems() {
 					requiredField = true
 				}
 				defaultValStrg := field.Tag.Get("formGenDefaultValue")
+				isPassword := false
+				if v, ok := field.Tag.Lookup("formGenIsPassword"); ok && strings.ToLower(v) != "false" {
+					isPassword = true
+				}
 
 				onChangeCallbackStrg := field.Tag.Get("formGenOnEntryChange")
 				onChangeCallbackFunc := v.MethodByName(onChangeCallbackStrg)
@@ -197,6 +201,10 @@ func (fgu *FormGenUtility) createFormItems() {
 					if !firstEntrySet {
 						fgu.firstEntry = mEntry
 						firstEntrySet = true
+					}
+
+					if isPassword {
+						mEntry.Password = true
 					}
 
 					defaultVal := defaultValStrg
