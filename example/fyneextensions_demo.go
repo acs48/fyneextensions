@@ -362,12 +362,18 @@ func main() {
 	homeTab, _ := fyneextensions.BuildTabItemRibbon(mHomeAction, 60., 30., messageString)
 	homeMenu := fyneextensions.NewActionableMenu(mHomeAction.GetActions())
 	mRibbon.Append(homeTab)
-	editTab, _ := fyneextensions.BuildTabItemRibbon(mEditAction, 60., 30., messageString)
+	editTab, editRb := fyneextensions.BuildTabItemRibbon(mEditAction, 60., 30., messageString)
 	editMenu := fyneextensions.NewActionableMenu(mEditAction.GetActions())
 	mRibbon.Append(editTab)
 	demoTab, _ := fyneextensions.BuildTabItemRibbon(mDemoAction, 60., 30., messageString)
 	demoMenu := fyneextensions.NewActionableMenu(mDemoAction.GetActions())
 	mRibbon.Append(demoTab)
+
+	editRb.AddItems(
+		fyneextensions.NewActionItem("runtime add", true, false, []fyne.Resource{theme.InfoIcon()}, false, false, false, 0, nil, []*fyneextensions.ActionItem{
+			fyneextensions.NewActionItem("runtime added button", true, false, []fyne.Resource{theme.InfoIcon()}, false, false, false, 0, func(i int) {}, nil),
+		}),
+	)
 
 	projectTree := widget.NewTree(
 		func(id widget.TreeNodeID) []widget.TreeNodeID {

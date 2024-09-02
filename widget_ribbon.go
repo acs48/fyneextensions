@@ -22,9 +22,11 @@ or vertically, or in context menus, depending on ActionItem depth and length
 type MainRibbon struct {
 	widget.BaseWidget
 
-	items  []*ActionItem
-	rems   []int
-	canvas fyne.Canvas
+	items              []*ActionItem
+	rems               []int
+	canvas             fyne.Canvas
+	maxSize, blockSize float32
+	toolTipper         binding.String
 
 	mContainer *fyne.Container
 	mMasterCnt fyne.CanvasObject
@@ -225,6 +227,10 @@ func newMainRibbon(items []*ActionItem, mCanvas fyne.Canvas, maxSize, blockSize 
 		mContainer: container.NewHBox(),
 		canvas:     mCanvas,
 
+		maxSize:    maxSize,
+		blockSize:  blockSize,
+		toolTipper: toolTipper,
+
 		sContainer:    make([]*fyne.Container, 0),
 		sAllObj:       make([][]fyne.CanvasObject, 0),
 		sMenu:         make([]*ActionableMenu, 0),
@@ -263,36 +269,35 @@ func newMainRibbon(items []*ActionItem, mCanvas fyne.Canvas, maxSize, blockSize 
 	return mr
 }
 
-/*
 func (mr *MainRibbon) AddItems(items ...*ActionItem) {
-	for range items {
-		mr.rems = append(mr.rems, 0)
+	for i := range items {
+		mr.rems = append(mr.rems, len(items[i].SubActions)-1)
 	}
 
-	for _, o := range items {
+	oldLen := len(mr.items)
+
+	for j, o := range items {
 		mr.items = append(mr.items, o)
-		rb, sc, sm := buildL1Ribbon(o, mr.canvas)
+		rb, sc, sm := buildL1Ribbon(o, mr.canvas, mr.maxSize, mr.blockSize, mr.toolTipper)
 		mr.mContainer.Add(rb)
 		mr.mMiniWidgets = append(mr.mMiniWidgets, rb)
 		mr.sContainer = append(mr.sContainer, sc)
 		mr.sAllObj = append(mr.sAllObj, sc.Objects)
 		mr.sMenu = append(mr.sMenu, sm)
-		mr.sAllMenuItems = append(mr.sAllMenuItems, sm.mMenuItems)
-		rb.setShowMore(false)
+		mr.sAllMenuItems = append(mr.sAllMenuItems, sm.mActionableMenuItem.subActionableMenuItems)
 
 		o.Name.AddListener(mr)
 		o.Hider.AddListener(mr)
 		o.Disabler.AddListener(mr)
-	}
 
-	for i := range mr.items {
+		i := oldLen + j
 		mr.sContainer[i].Objects = mr.sAllObj[i][:len(mr.sAllObj[i])-mr.rems[i]]
-		mr.sMenu[i].mMenuItems = mr.sAllMenuItems[i][len(mr.sAllObj[i])-mr.rems[i]:]
+		mr.sMenu[i].mActionableMenuItem.subActionableMenuItems = mr.sAllMenuItems[i][len(mr.sAllObj[i])-mr.rems[i]:]
 		mr.sContainer[i].Refresh()
 		mr.sMenu[i].DataChanged()
 	}
+	mr.Refresh()
 }
-*/
 
 func buildL1Ribbon(item *ActionItem, mCanvas fyne.Canvas, maxSize, blockSize float32, toolTipper binding.String) (*MiniWidget, *fyne.Container, *ActionableMenu) {
 	mContent := container.New(&ExpandingAllProportionallyPaddedHBox{})
