@@ -954,9 +954,9 @@ func NewFormGenDialog(s interface{}, title, confirm, dismiss string, onSubmit fu
 			for _, o := range fgu.fieldSetter {
 				o()
 			}
-			if onSubmit != nil {
-				onSubmit(b)
-			}
+		}
+		if onSubmit != nil {
+			onSubmit(b)
 		}
 	}, w)
 
