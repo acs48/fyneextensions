@@ -296,7 +296,7 @@ func (mr *MainRibbon) AddItems(items ...*ActionItem) {
 		mr.sContainer[i].Refresh()
 		mr.sMenu[i].DataChanged()
 	}
-	mr.Refresh()
+	//mr.Refresh()
 }
 
 func buildL1Ribbon(item *ActionItem, mCanvas fyne.Canvas, maxSize, blockSize float32, toolTipper binding.String) (*MiniWidget, *fyne.Container, *ActionableMenu) {
