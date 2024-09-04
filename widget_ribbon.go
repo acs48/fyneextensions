@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 	"math"
+	"sync"
 )
 
 /*
@@ -39,6 +40,7 @@ type MainRibbon struct {
 
 	minSize      fyne.Size
 	lastRenderer *mainRibbonRenderer
+	renderLock   sync.Mutex
 }
 
 func (mr *MainRibbon) DataChanged() {
@@ -50,6 +52,8 @@ func (mr *MainRibbon) DataChanged() {
 }
 
 func (mr *MainRibbon) CreateRenderer() fyne.WidgetRenderer {
+	mr.renderLock.Lock()
+	defer mr.renderLock.Unlock()
 	mr.lastRenderer = &mainRibbonRenderer{
 		mRibbon: mr,
 	}
@@ -67,6 +71,9 @@ type mainRibbonRenderer struct {
 func (mrr *mainRibbonRenderer) Destroy() {}
 
 func (mrr *mainRibbonRenderer) Layout(containerSize fyne.Size) {
+	mrr.mRibbon.renderLock.Lock()
+	defer mrr.mRibbon.renderLock.Unlock()
+
 	if containerSize.Width <= 0. {
 		mrr.mRibbon.mMasterCnt.Resize(containerSize)
 		mrr.mRibbon.mMasterCnt.Move(fyne.NewPos(0, 0))
@@ -270,6 +277,9 @@ func newMainRibbon(items []*ActionItem, mCanvas fyne.Canvas, maxSize, blockSize 
 }
 
 func (mr *MainRibbon) AddItems(items ...*ActionItem) {
+	mr.renderLock.Lock()
+	defer mr.renderLock.Unlock()
+
 	for i := range items {
 		mr.rems = append(mr.rems, len(items[i].SubActions)-1)
 	}
@@ -296,7 +306,6 @@ func (mr *MainRibbon) AddItems(items ...*ActionItem) {
 		mr.sContainer[i].Refresh()
 		mr.sMenu[i].DataChanged()
 	}
-	//mr.Refresh()
 }
 
 func buildL1Ribbon(item *ActionItem, mCanvas fyne.Canvas, maxSize, blockSize float32, toolTipper binding.String) (*MiniWidget, *fyne.Container, *ActionableMenu) {

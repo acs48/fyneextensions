@@ -93,6 +93,7 @@ type FormGenUtility struct {
 
 	formItems     []*widget.FormItem
 	fieldSetter   map[string]func()
+	formClearer   map[string]func()
 	entrySetter   map[string]func()
 	entryDisabler map[string]func()
 	entryEnabler  map[string]func()
@@ -100,6 +101,8 @@ type FormGenUtility struct {
 	formDialog *dialog.FormDialog
 	OnSubmit   func(bool)
 	formWidget *widget.Form
+
+	firstShow bool
 }
 
 // OverrideEntry overrides the content of the entry from the value stored in the specified field.
@@ -153,6 +156,7 @@ func (fgu *FormGenUtility) createFormItems() {
 
 			fieldValue := v.Field(i)
 			fieldSetterFunc := func() {}
+			fieldClearerFunc := func() {}
 			entrySetterFunc := func() {}
 			entryDisabler := func() {}
 			entryEnabler := func() {}
@@ -239,6 +243,10 @@ func (fgu *FormGenUtility) createFormItems() {
 						if v, err := textConverter(mEntry.Text); err == nil {
 							fieldValue.SetString(v)
 						}
+					}
+					fieldClearerFunc = func() {
+						fieldValue.SetString("")
+						mEntry.SetText("")
 					}
 					entrySetterFunc = func() {
 						mEntry.SetText(fieldValue.String())
@@ -351,6 +359,10 @@ func (fgu *FormGenUtility) createFormItems() {
 							fieldValue.SetInt(v64)
 						}
 					}
+					fieldClearerFunc = func() {
+						fieldValue.SetInt(0)
+						mEntry.SetText("")
+					}
 					entrySetterFunc = func() {
 						mEntry.SetText(strconv.FormatInt(fieldValue.Int(), 10))
 					}
@@ -433,6 +445,10 @@ func (fgu *FormGenUtility) createFormItems() {
 							fieldValue.SetFloat(v64)
 						}
 					}
+					fieldClearerFunc = func() {
+						fieldValue.SetFloat(0.)
+						mEntry.SetText("")
+					}
 					entrySetterFunc = func() {
 						mEntry.SetText(strconv.FormatFloat(fieldValue.Float(), 'g', -1, floatBS))
 					}
@@ -476,6 +492,10 @@ func (fgu *FormGenUtility) createFormItems() {
 									checkGroupFields[checkGroupName][label].SetBool(true)
 								}
 							}
+						}
+						fieldClearerFunc = func() {
+							checkGroupFields[checkGroupName][label].SetBool(false)
+							mEntry.SetSelected([]string{})
 						}
 						entrySetterFunc = func() {
 							selected := make([]string, 0)
@@ -529,6 +549,10 @@ func (fgu *FormGenUtility) createFormItems() {
 								radioGroupFields[radioGroupName][label].SetBool(false)
 							}
 						}
+						fieldClearerFunc = func() {
+							radioGroupFields[radioGroupName][label].SetBool(false)
+							mEntry.SetSelected("")
+						}
 						entrySetterFunc = func() {
 							selected := ""
 							for s, f := range radioGroupFields[radioGroupName] {
@@ -567,6 +591,10 @@ func (fgu *FormGenUtility) createFormItems() {
 						fieldSetterFunc = func() {
 							ttp := mEntry.Checked
 							fieldValue.SetBool(ttp)
+						}
+						fieldClearerFunc = func() {
+							fieldValue.SetBool(false)
+							mEntry.SetChecked(false)
 						}
 						entrySetterFunc = func() {
 							mEntry.SetChecked(fieldValue.Bool())
@@ -673,6 +701,11 @@ func (fgu *FormGenUtility) createFormItems() {
 							fieldValue.Set(reflect.ValueOf(v))
 						}
 					}
+					fieldClearerFunc = func() {
+						v := time.Time{}
+						fieldValue.Set(reflect.ValueOf(v))
+						mEntry.SetText("")
+					}
 					entrySetterFunc = func() {
 						if v, ok := fieldValue.Interface().(time.Time); ok {
 							if !v.IsZero() {
@@ -747,6 +780,11 @@ func (fgu *FormGenUtility) createFormItems() {
 							fieldValue.Set(reflect.ValueOf(v))
 						}
 					}
+					fieldClearerFunc = func() {
+						v := time.Duration(0)
+						fieldValue.Set(reflect.ValueOf(v))
+						mEntry.SetText("")
+					}
 					entrySetterFunc = func() {
 						if v, ok := fieldValue.Interface().(time.Duration); ok {
 							if v.Nanoseconds() != 0 {
@@ -810,6 +848,11 @@ func (fgu *FormGenUtility) createFormItems() {
 							fieldValue.Set(reflect.ValueOf(v))
 						}
 					}
+					fieldClearerFunc = func() {
+						v := make([]string, 0)
+						fieldValue.Set(reflect.ValueOf(v))
+						mEntry.SetText("")
+					}
 					entrySetterFunc = func() {
 						fs := ""
 						if v, ok := fieldValue.Interface().([]string); ok {
@@ -872,8 +915,12 @@ func (fgu *FormGenUtility) createFormItems() {
 								fieldValue.SetInt(int64(v))
 							}
 						}
+						fieldClearerFunc = func() {
+							fieldValue.SetInt(int64(0))
+							mEntry.SetSelected("")
+						}
 						entrySetterFunc = func() {
-							fieldValue.SetInt(fieldValue.Int())
+							mEntry.SetSelectedIndex(int(fieldValue.Int()))
 						}
 						entryDisabler = mEntry.Disable
 						entryEnabler = mEntry.Enable
@@ -884,6 +931,7 @@ func (fgu *FormGenUtility) createFormItems() {
 				}
 
 				fgu.fieldSetter[fieldName] = fieldSetterFunc
+				fgu.formClearer[fieldName] = fieldClearerFunc
 				fgu.entrySetter[fieldName] = entrySetterFunc
 				fgu.entryEnabler[fieldName] = entryEnabler
 				fgu.entryDisabler[fieldName] = entryDisabler
@@ -941,10 +989,12 @@ func NewFormGenDialog(s interface{}, title, confirm, dismiss string, onSubmit fu
 		w:             w,
 		formItems:     make([]*widget.FormItem, 0),
 		fieldSetter:   make(map[string]func()),
+		formClearer:   make(map[string]func()),
 		entrySetter:   make(map[string]func()),
 		entryEnabler:  make(map[string]func()),
 		entryDisabler: make(map[string]func()),
 		OnSubmit:      onSubmit,
+		firstShow:     true,
 	}
 
 	fgu.createFormItems()
@@ -989,14 +1039,20 @@ func NewFormGenDialog(s interface{}, title, confirm, dismiss string, onSubmit fu
 	return fgu
 }
 
+type FormGenKeepValueOption int
+
+const (
+	KeepStructExceptOnFirstShow FormGenKeepValueOption = iota
+	KeepStruct
+	KeepEntry
+	ResetStruct
+)
+
 /*
 GetDialog is a method of the FormGenUtility type that returns the generated form dialog.
 
 Parameters:
-
-  - keepSValues (bool): A flag to indicate whether to keep or discard the values in the struct fields.
-    If set to true, the current values in the form fields are initialized same as the struct values.
-    Entries will be left empty or to default values instead.
+  - keepStructValues (FormGenKeepValueOption): A flag to indicate whether to keep or discard the values in the form entries.
 
 Returns:
 
@@ -1009,12 +1065,27 @@ Example Usage:
 	// Save current values and get the form dialog
 	dialog := fgu.GetDialog(true)
 */
-func (fgu *FormGenUtility) GetDialog(keepSValues bool) *dialog.FormDialog {
-	if keepSValues {
+func (fgu *FormGenUtility) GetDialog(keepStructValues FormGenKeepValueOption) *dialog.FormDialog {
+	switch keepStructValues {
+	case KeepStructExceptOnFirstShow:
+		if !fgu.firstShow {
+			for _, o := range fgu.entrySetter {
+				o()
+			}
+		}
+	case KeepStruct:
 		for _, o := range fgu.entrySetter {
 			o()
 		}
+	case KeepEntry:
+
+	case ResetStruct:
+		for _, o := range fgu.formClearer {
+			o()
+		}
 	}
+
+	fgu.firstShow = false
 	return fgu.formDialog
 }
 
@@ -1022,10 +1093,7 @@ func (fgu *FormGenUtility) GetDialog(keepSValues bool) *dialog.FormDialog {
 ShowDialog is a method of the FormGenUtility type that shows the generated form dialog.
 
 Parameters:
-
-  - keepSValues (bool): A flag to indicate whether to keep or discard the values in the struct fields.
-    If set to true, the current values in the form fields are initialized same as the struct values.
-    Entries will be left empty or to default values instead.
+  - keepStructValues (FormGenKeepValueOption): A flag to indicate whether to keep or discard the values in the form entries.
 
 Example Usage:
 
@@ -1034,12 +1102,28 @@ Example Usage:
 	// Show dialog with current values
 	fgu.ShowDialog(true)
 */
-func (fgu *FormGenUtility) ShowDialog(keepSValues bool) {
-	if keepSValues {
+func (fgu *FormGenUtility) ShowDialog(keepStructValues FormGenKeepValueOption) {
+	switch keepStructValues {
+	case KeepStructExceptOnFirstShow:
+		if !fgu.firstShow {
+			for _, o := range fgu.entrySetter {
+				o()
+			}
+		}
+	case KeepStruct:
 		for _, o := range fgu.entrySetter {
 			o()
 		}
+	case KeepEntry:
+
+	case ResetStruct:
+		for _, o := range fgu.formClearer {
+			o()
+		}
 	}
+
+	fgu.firstShow = false
+
 	fgu.formDialog.Show()
 	if fgu.firstEntry != nil {
 		fgu.w.Canvas().Focus(fgu.firstEntry)
@@ -1053,9 +1137,7 @@ and further customized where necessary. It does not include ok and cancel button
 need to be created manually and call the OnSubmit (or OnCancel) functions
 
 Parameters:
-  - keepSValues (bool): A flag to indicate whether to keep or discard the values in the struct fields.
-    If set to true, the current values in the form fields are initialized same as the struct values.
-    Entries will be left empty or to default values instead.
+  - keepStructValues (FormGenKeepValueOption): A flag to indicate whether to keep or discard the values in the form entries.
 
 Returns:
 - *widget.Form: The form widget generated by the NewFormGenDialog function.
@@ -1067,12 +1149,28 @@ Example Usage:
 	// Retrieve the form widget with current values
 	widget := fgu.GetWidget(true)
 */
-func (fgu *FormGenUtility) GetWidget(keepSValues bool) *widget.Form {
-	if keepSValues {
+func (fgu *FormGenUtility) GetWidget(keepStructValues FormGenKeepValueOption) *widget.Form {
+	switch keepStructValues {
+	case KeepStructExceptOnFirstShow:
+		if !fgu.firstShow {
+			for _, o := range fgu.entrySetter {
+				o()
+			}
+		}
+	case KeepStruct:
 		for _, o := range fgu.entrySetter {
 			o()
 		}
+	case KeepEntry:
+
+	case ResetStruct:
+		for _, o := range fgu.formClearer {
+			o()
+		}
 	}
+
+	fgu.firstShow = false
+
 	return fgu.formWidget
 }
 
