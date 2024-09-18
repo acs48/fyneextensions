@@ -377,7 +377,7 @@ func buildL2Ribbon(item *ActionItem, mCanvas fyne.Canvas, maxSize, blockSize flo
 		nb := NewFlexButton("", item.Resources, false, !item.CriticalName, false, false, false, maxSize, blockSize, mCanvas, item.Triggered, item.Name, item.Disabler, item.Hider, item.Stater, toolTipper)
 		mContent = nb
 	} else if item.AlwaysShowAsContainer {
-		nb := NewFlexButton("", item.Resources, false, false, false, true, true, maxSize, blockSize, mCanvas, func(int) {}, item.Name, item.Disabler, item.Hider, item.Stater, toolTipper)
+		nb := NewFlexButton("", item.Resources, false, !item.CriticalName, false, true, true, maxSize, blockSize, mCanvas, func(int) {}, item.Name, item.Disabler, item.Hider, item.Stater, toolTipper)
 		mContent = nb
 
 		sMenu := NewActionableMenu2(item.SubActions...).Menu
