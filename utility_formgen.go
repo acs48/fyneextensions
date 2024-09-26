@@ -807,6 +807,7 @@ func (fgu *FormGenUtility) createFormItems() {
 
 					defaultVal := make([]string, 0)
 					if defaultValStrg != "" {
+						//rew
 						if v := strings.Split(defaultValStrg, "\n"); len(v) > 0 {
 							defaultVal = v
 							mEntry.SetPlaceHolder(defaultValStrg)
