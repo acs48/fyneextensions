@@ -805,10 +805,12 @@ func (fgu *FormGenUtility) createFormItems() {
 						firstEntrySet = true
 					}
 
-					var defaultVal []string
-					if v := strings.Split(defaultValStrg, "\n"); len(v) > 0 {
-						defaultVal = v
-						mEntry.SetPlaceHolder(defaultValStrg)
+					defaultVal := make([]string, 0)
+					if defaultValStrg != "" {
+						if v := strings.Split(defaultValStrg, "\n"); len(v) > 0 {
+							defaultVal = v
+							mEntry.SetPlaceHolder(defaultValStrg)
+						}
 					}
 
 					textConverter := func(s string) ([]string, error) {
