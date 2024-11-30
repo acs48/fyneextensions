@@ -873,12 +873,14 @@ func (fgu *FormGenUtility) createFormItems() {
 						options := strings.Split(dropDown, ";")
 
 						var callbackFunc func(string)
+						var mEntry *widget.Select
+
 						if onChangeCallbackFunc.IsValid() {
 							callbackFunc = func(b string) {
-								onChangeCallbackFunc.Call([]reflect.Value{reflect.ValueOf(b), reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())})
+								onChangeCallbackFunc.Call([]reflect.Value{reflect.ValueOf(mEntry.SelectedIndex()), reflect.Zero(reflect.TypeOf((*error)(nil)).Elem())})
 							}
 						}
-						mEntry := widget.NewSelect(options, callbackFunc)
+						mEntry = widget.NewSelect(options, callbackFunc)
 						if !firstEntrySet {
 							fgu.firstEntry = mEntry
 							firstEntrySet = true
